@@ -16,7 +16,6 @@ jest.mock("@tanstack/react-query", () => ({
 }));
 
 const mockRefineProvider: IRefineContextProvider = {
-  hasDashboard: false,
   ...defaultRefineOptions,
   options: defaultRefineOptions,
 };

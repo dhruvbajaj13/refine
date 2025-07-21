@@ -1,20 +1,13 @@
 import React from "react";
-import {
-  type TitleProps,
-  useRouterContext,
-  useRouterType,
-  useLink,
-} from "@refinedev/core";
+import { useLink } from "@refinedev/core";
 
-export const Title: React.FC<TitleProps> = ({ collapsed }) => {
-  const routerType = useRouterType();
+type Props = { collapsed?: boolean };
+
+export const Title: React.FC<Props> = ({ collapsed }) => {
   const Link = useLink();
-  const { Link: LegacyLink } = useRouterContext();
-
-  const ActiveLink = routerType === "legacy" ? LegacyLink : Link;
 
   return (
-    <ActiveLink to="/">
+    <Link to="/">
       {collapsed ? (
         <div
           style={{
@@ -43,6 +36,6 @@ export const Title: React.FC<TitleProps> = ({ collapsed }) => {
           }}
         />
       )}
-    </ActiveLink>
+    </Link>
   );
 };

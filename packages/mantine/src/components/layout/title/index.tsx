@@ -1,21 +1,16 @@
 import React from "react";
-import {
-  useRouterContext,
-  type TitleProps,
-  useRouterType,
-  useLink,
-} from "@refinedev/core";
+import { useLink } from "@refinedev/core";
 import { Center } from "@mantine/core";
 
-export const Title: React.FC<TitleProps> = ({ collapsed }) => {
-  const routerType = useRouterType();
-  const Link = useLink();
-  const { Link: LegacyLink } = useRouterContext();
+type TitleProps = {
+  collapsed?: boolean;
+};
 
-  const ActiveLink = routerType === "legacy" ? LegacyLink : Link;
+export const Title: React.FC<TitleProps> = ({ collapsed }) => {
+  const Link = useLink();
 
   return (
-    <ActiveLink to="/">
+    <Link to="/">
       <Center p="xs">
         {collapsed ? (
           <img
@@ -31,6 +26,6 @@ export const Title: React.FC<TitleProps> = ({ collapsed }) => {
           />
         )}
       </Center>
-    </ActiveLink>
+    </Link>
   );
 };

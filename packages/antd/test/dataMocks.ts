@@ -3,15 +3,8 @@ import type {
   IResourceItem,
   Action,
   RouterBindings,
+  RouterProvider,
 } from "@refinedev/core";
-import { useParams, useLocation, Link, useNavigate } from "react-router";
-
-/* import {
-    IDataContext,
-    IRouterContext,
-    IAccessControlContext,
-    ILiveContext,
-} from "@refinedev/core"; */
 
 export const posts = [
   {
@@ -62,28 +55,49 @@ const MockDataProvider = () => {
 
 export const MockJSONServer = MockDataProvider() as any;
 
-export const MockRouterProvider = {
-  useHistory: () => {
-    const navigate = useNavigate();
+export const MockRouterProvider = ({
+  pathname,
+  params,
+  resource,
+  action,
+  id,
+  fns,
+}: {
+  pathname?: string;
+  params?: ParsedParams;
+  resource?: IResourceItem;
+  action?: Action;
+  id?: string;
+  fns?: Partial<RouterProvider>;
+} = {}): RouterProvider => {
+  const routerProvider: RouterProvider = {
+    go: () => {
+      return ({ type }) => {
+        if (type === "path") return "";
+        return undefined;
+      };
+    },
+    parse: () => {
+      return () => {
+        return {
+          params: {
+            ...params,
+          },
+          pathname,
+          resource: resource,
+          action: action,
+          id: id || undefined,
+        };
+      };
+    },
+    back: () => {
+      return () => undefined;
+    },
+    Link: () => null,
+    ...fns,
+  };
 
-    return {
-      push: navigate,
-      replace: (path: string) => {
-        navigate(path, { replace: true });
-      },
-      goBack: () => {
-        navigate(-1);
-      },
-    };
-  },
-  useLocation,
-  useParams: () => {
-    const params = useParams();
-
-    return params as any;
-  },
-  Link,
-  Prompt: () => null,
+  return routerProvider;
 };
 
 export const mockRouterBindings = ({

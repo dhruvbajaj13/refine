@@ -18,7 +18,6 @@ export type UseLogProps<TQueryFnData, TError, TData> = {
   meta?: Record<number | string, any>;
   author?: Record<number | string, any>;
   queryOptions?: UseQueryOptions<TQueryFnData, TError, TData>;
-  metaData?: MetaQuery;
 };
 
 /**
@@ -40,11 +39,10 @@ export const useLogList = <
   action,
   meta,
   author,
-  metaData,
   queryOptions,
-}: UseLogProps<TQueryFnData, TError, TData>): UseQueryResult<TData> => {
+}: UseLogProps<TQueryFnData, TError, TData>): UseQueryResult<TData, TError> => {
   const { get } = useContext(AuditLogContext);
-  const { keys, preferLegacyKeys } = useKeys();
+  const { keys } = useKeys();
 
   const queryResponse = useQuery<TQueryFnData, TError, TData>({
     queryKey: keys()
@@ -52,21 +50,20 @@ export const useLogList = <
       .resource(resource)
       .action("list")
       .params(meta)
-      .get(preferLegacyKeys),
+      .get(),
     queryFn: () =>
       get?.({
         resource,
         action,
         author,
         meta,
-        metaData,
       }) ?? Promise.resolve([]),
     enabled: typeof get !== "undefined",
     ...queryOptions,
     retry: false,
     meta: {
       ...queryOptions?.meta,
-      ...getXRay("useLogList", preferLegacyKeys, resource),
+      ...getXRay("useLogList", resource),
     },
   });
 

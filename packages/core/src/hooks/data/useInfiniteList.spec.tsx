@@ -451,6 +451,9 @@ describe("useInfiniteList Hook", () => {
               },
             },
             authProvider: {
+              login: () => Promise.resolve({ success: true }),
+              logout: () => Promise.resolve({ success: true }),
+              check: () => Promise.resolve({ authenticated: true }),
               onError: onErrorMock,
             } as any,
             resources: [{ name: "posts" }],
@@ -482,8 +485,11 @@ describe("useInfiniteList Hook", () => {
                 getList: getListMock,
               },
             },
-            legacyAuthProvider: {
-              checkError: onErrorMock,
+            authProvider: {
+              login: () => Promise.resolve({ success: true }),
+              logout: () => Promise.resolve({ success: true }),
+              check: () => Promise.resolve({ authenticated: true }),
+              onError: onErrorMock,
             },
             resources: [{ name: "posts" }],
           }),
@@ -510,7 +516,7 @@ describe("useInfiniteList Hook", () => {
           useInfiniteList({
             resource: "posts",
             queryOptions: {
-              onSuccess: onSuccessMock,
+              enabled: true,
             },
           }),
         {
@@ -554,7 +560,7 @@ describe("useInfiniteList Hook", () => {
           useInfiniteList({
             resource: "posts",
             queryOptions: {
-              onError: onErrorMock,
+              enabled: true,
             },
           }),
         {
@@ -998,13 +1004,13 @@ describe("useInfiniteList Hook", () => {
     );
 
     await waitFor(() => {
-      expect(result.current.isLoading).toBeTruthy();
+      expect(result.current.isPending).toBeTruthy();
       expect(result.current.overtime.elapsedTime).toBe(900);
       expect(onInterval).toBeCalled();
     });
 
     await waitFor(() => {
-      expect(result.current.isLoading).toBeFalsy();
+      expect(result.current.isPending).toBeFalsy();
       expect(result.current.overtime.elapsedTime).toBeUndefined();
     });
   });

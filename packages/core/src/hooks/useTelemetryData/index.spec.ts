@@ -1,7 +1,7 @@
 import { renderHook } from "@testing-library/react";
 
 import { defaultRefineOptions } from "@contexts/refine";
-import { MockJSONServer, TestWrapper, mockLegacyRouterProvider } from "@test";
+import { MockJSONServer, TestWrapper } from "@test";
 
 import { useTelemetryData } from ".";
 import type { IRefineContextProvider } from "../../contexts/refine/types";
@@ -25,14 +25,6 @@ describe("useTelemetryData Hook", () => {
         wrapper: TestWrapper({
           dataProvider: MockJSONServer,
           resources: [{ name: "posts" }],
-          legacyAuthProvider: {
-            login: () => Promise.resolve(),
-            logout: () => Promise.resolve(),
-            checkError: () => Promise.resolve(),
-            checkAuth: () => Promise.resolve(),
-            getPermissions: () => Promise.resolve(),
-            getUserIdentity: () => Promise.resolve(),
-          },
         }),
       });
 
@@ -278,27 +270,8 @@ describe("useTelemetryData Hook", () => {
     });
   });
 
-  describe("legacy routeProvider", () => {
-    it("must be true", async () => {
-      const { result } = renderHook(() => useTelemetryData(), {
-        wrapper: TestWrapper({
-          dataProvider: MockJSONServer,
-          resources: [{ name: "posts" }],
-          legacyRouterProvider: {
-            ...mockLegacyRouterProvider(),
-            useHistory: undefined as any,
-          },
-        }),
-      });
-
-      const { providers } = result.current;
-      expect(providers.router).toBeTruthy();
-    });
-  });
-
   describe("projectId", () => {
     const mockRefineProvider: IRefineContextProvider = {
-      hasDashboard: false,
       ...defaultRefineOptions,
       options: defaultRefineOptions,
     };

@@ -30,7 +30,7 @@ describe("useOne Hook", () => {
     );
 
     await waitFor(() => {
-      expect(!result.current.isLoading).toBeTruthy();
+      expect(!result.current.isPending).toBeTruthy();
     });
 
     const { status, data } = result.current;
@@ -104,7 +104,7 @@ describe("useOne Hook", () => {
         );
 
         await waitFor(() => {
-          expect(!result.current.isLoading).toBeTruthy();
+          expect(!result.current.isPending).toBeTruthy();
         });
 
         expect(onSubscribeMock).toBeCalled();
@@ -148,7 +148,7 @@ describe("useOne Hook", () => {
       );
 
       await waitFor(() => {
-        expect(!result.current.isLoading).toBeTruthy();
+        expect(!result.current.isPending).toBeTruthy();
       });
 
       expect(onSubscribeMock).not.toBeCalled();
@@ -176,7 +176,7 @@ describe("useOne Hook", () => {
       );
 
       await waitFor(() => {
-        expect(!result.current.isLoading).toBeTruthy();
+        expect(!result.current.isPending).toBeTruthy();
       });
 
       expect(onSubscribeMock).toBeCalled();
@@ -205,7 +205,7 @@ describe("useOne Hook", () => {
       );
 
       await waitFor(() => {
-        expect(!result.current.isLoading).toBeTruthy();
+        expect(!result.current.isPending).toBeTruthy();
       });
 
       expect(onSubscribeMock).toBeCalled();
@@ -416,6 +416,9 @@ describe("useOne Hook", () => {
                 },
               },
               authProvider: {
+                login: () => Promise.resolve({ success: true }),
+                logout: () => Promise.resolve({ success: true }),
+                check: () => Promise.resolve({ authenticated: true }),
                 onError: onErrorMock,
               } as any,
               resources: [{ name: "posts" }],
@@ -448,8 +451,11 @@ describe("useOne Hook", () => {
                   getOne: getOneMock,
                 },
               },
-              legacyAuthProvider: {
-                checkError: onErrorMock,
+              authProvider: {
+                login: () => Promise.resolve({ success: true }),
+                logout: () => Promise.resolve({ success: true }),
+                check: () => Promise.resolve({ authenticated: true }),
+                onError: onErrorMock,
               },
               resources: [{ name: "posts" }],
             }),
@@ -465,10 +471,10 @@ describe("useOne Hook", () => {
     });
 
     describe("queryOptions", () => {
-      it("should run `queryOptions.onSuccess` callback on success", async () => {
+      it("should run `onSuccess` callback on success", async () => {
         const onSuccessMock = jest.fn();
         const getOneMock = jest.fn().mockResolvedValue({
-          data: [{ id: 1, title: "foo" }],
+          data: { id: 1, title: "foo" },
         });
 
         const { result } = renderHook(
@@ -476,8 +482,9 @@ describe("useOne Hook", () => {
             useOne({
               resource: "posts",
               id: "1",
+              onSuccess: onSuccessMock,
               queryOptions: {
-                onSuccess: onSuccessMock,
+                enabled: true,
               },
             }),
           {
@@ -498,11 +505,11 @@ describe("useOne Hook", () => {
         });
 
         expect(onSuccessMock).toBeCalledWith({
-          data: [{ id: 1, title: "foo" }],
+          data: { id: 1, title: "foo" },
         });
       });
 
-      it("should run `queryOptions.onError` callback on error", async () => {
+      it("should run `onError` callback on error", async () => {
         const onErrorMock = jest.fn();
         const getOneMcok = jest.fn().mockRejectedValue(new Error("Error"));
 
@@ -511,8 +518,9 @@ describe("useOne Hook", () => {
             useOne({
               resource: "posts",
               id: "1",
+              onError: onErrorMock,
               queryOptions: {
-                onError: onErrorMock,
+                enabled: true,
               },
             }),
           {
@@ -812,9 +820,10 @@ describe("useOne Hook", () => {
             meta: expect.objectContaining({
               queryContext: expect.objectContaining({
                 queryKey: [
+                  "data",
                   "default",
                   "featured-posts",
-                  "detail",
+                  "one",
                   "1",
                   expect.any(Object),
                 ],
@@ -908,13 +917,13 @@ describe("useOne Hook", () => {
     );
 
     await waitFor(() => {
-      expect(result.current.isLoading).toBeTruthy();
+      expect(result.current.isPending).toBeTruthy();
       expect(result.current.overtime.elapsedTime).toBe(900);
       expect(onInterval).toBeCalled();
     });
 
     await waitFor(() => {
-      expect(result.current.isLoading).toBeFalsy();
+      expect(result.current.isPending).toBeFalsy();
       expect(result.current.overtime.elapsedTime).toBeUndefined();
     });
   });

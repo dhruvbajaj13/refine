@@ -2,16 +2,14 @@ import { useContext } from "react";
 
 import { RefineContext } from "@contexts/refine";
 
-import type { TitleProps } from "../../contexts/refine/types";
-
 /**
- * `useTitle` returns a component that calls the `<Title>` passed to the `<Refine>`.
- * In this way, it becomes easier for us to access this component in various parts of the application.
+ * `useTitle` returns the title configuration from the `<Refine>` context.
+ * This provides access to the title icon and text configuration.
  *
  * @see {@link https://refine.dev/docs/api-reference/core/hooks/refine/useTitle} for more details.
  */
-export const useTitle: () => React.FC<TitleProps> | undefined = () => {
-  const { Title } = useContext(RefineContext);
+export const useTitle = () => {
+  const { options } = useContext(RefineContext);
 
-  return Title;
+  return options.title;
 };

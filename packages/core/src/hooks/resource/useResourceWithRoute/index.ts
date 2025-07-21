@@ -16,7 +16,7 @@ export const useResourceWithRoute = (): UseResourceWithRouteReturnType => {
 
   const resourceWithRoute = useCallback(
     (route: string) => {
-      const picked = pickResource(route, resources, true);
+      const picked = pickResource(route, resources);
       if (picked) {
         return picked;
       }

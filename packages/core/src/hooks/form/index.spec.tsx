@@ -2,13 +2,7 @@ import React from "react";
 
 import { renderHook, waitFor } from "@testing-library/react";
 
-import {
-  MockJSONServer,
-  TestWrapper,
-  act,
-  mockLegacyRouterProvider,
-  mockRouterProvider,
-} from "@test";
+import { MockJSONServer, TestWrapper, act, mockRouterProvider } from "@test";
 import { posts } from "@test/dataMocks";
 import {
   assertList,
@@ -361,7 +355,6 @@ describe("useForm Hook", () => {
 
   it("if id is not provided while using legacy router provider, it should infer id from route when resources are matched", async () => {
     const legacyRouterProvider = {
-      ...mockLegacyRouterProvider(),
       useParams: () => ({
         resource: "posts",
         action: "edit",
@@ -377,7 +370,6 @@ describe("useForm Hook", () => {
       {
         wrapper: TestWrapper({
           dataProvider: MockJSONServer,
-          legacyRouterProvider: legacyRouterProvider,
           resources: [{ name: "posts" }],
         }),
       },
@@ -389,7 +381,6 @@ describe("useForm Hook", () => {
   it("legacy router provider should infer resource, action and id from route", async () => {
     const updateMock = jest.fn();
     const legacyRouterProvider = {
-      ...mockLegacyRouterProvider(),
       useParams: () => ({
         resource: "posts",
         action: "edit",
@@ -405,7 +396,6 @@ describe("useForm Hook", () => {
             update: updateMock,
           },
         },
-        legacyRouterProvider: legacyRouterProvider,
         resources: [
           {
             name: "posts",
@@ -808,7 +798,7 @@ describe("useForm Hook", () => {
       });
 
       await waitFor(() => {
-        expect(result.current.mutation?.isLoading).toBeTruthy();
+        expect(result.current.mutation?.isPending).toBeTruthy();
         expect(result.current.overtime.elapsedTime).toBe(900);
         expect(onInterval).toBeCalled();
       });
@@ -816,7 +806,7 @@ describe("useForm Hook", () => {
       await promise;
 
       await waitFor(() => {
-        expect(!result.current.mutation?.isLoading).toBeTruthy();
+        expect(!result.current.mutation?.isPending).toBeTruthy();
         expect(result.current.overtime.elapsedTime).toBeUndefined();
       });
     });
@@ -1060,7 +1050,7 @@ describe("useForm Hook", () => {
       });
 
       await waitFor(() => {
-        expect(result.current.mutation?.isLoading).toBeTruthy();
+        expect(result.current.mutation?.isPending).toBeTruthy();
         expect(result.current.overtime.elapsedTime).toBe(900);
         expect(onInterval).toBeCalled();
       });
@@ -1068,7 +1058,7 @@ describe("useForm Hook", () => {
       await promise;
 
       await waitFor(() => {
-        expect(!result.current.mutation?.isLoading).toBeTruthy();
+        expect(!result.current.mutation?.isPending).toBeTruthy();
         expect(result.current.overtime.elapsedTime).toBeUndefined();
       });
     });

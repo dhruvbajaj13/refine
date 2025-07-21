@@ -28,7 +28,7 @@ describe("useSelect Hook", () => {
     );
 
     await waitFor(() => {
-      expect(result.current.queryResult.isSuccess).toBeTruthy();
+      expect(result.current.query.isSuccess).toBeTruthy();
     });
 
     const { options } = result.current;
@@ -61,7 +61,7 @@ describe("useSelect Hook", () => {
     );
 
     await waitFor(() => {
-      expect(result.current.queryResult.isSuccess).toBeTruthy();
+      expect(result.current.query.isSuccess).toBeTruthy();
     });
 
     const { options } = result.current;
@@ -93,7 +93,7 @@ describe("useSelect Hook", () => {
     );
 
     await waitFor(() => {
-      expect(result.current.queryResult.isSuccess).toBeTruthy();
+      expect(result.current.query.isSuccess).toBeTruthy();
     });
 
     const { options } = result.current;
@@ -125,7 +125,7 @@ describe("useSelect Hook", () => {
     );
 
     await waitFor(() => {
-      expect(result.current.queryResult.isSuccess).toBeTruthy();
+      expect(result.current.query.isSuccess).toBeTruthy();
     });
 
     const { options } = result.current;
@@ -158,7 +158,7 @@ describe("useSelect Hook", () => {
     );
 
     await waitFor(() => {
-      expect(result.current.queryResult.isSuccess).toBeTruthy();
+      expect(result.current.query.isSuccess).toBeTruthy();
     });
 
     const { options } = result.current;
@@ -192,7 +192,7 @@ describe("useSelect Hook", () => {
     );
 
     await waitFor(() => {
-      expect(result.current.queryResult.isSuccess).toBeTruthy();
+      expect(result.current.query.isSuccess).toBeTruthy();
     });
 
     const { options } = result.current;
@@ -230,7 +230,7 @@ describe("useSelect Hook", () => {
     );
 
     await waitFor(() => {
-      expect(result.current.queryResult.isSuccess).toBeTruthy();
+      expect(result.current.query.isSuccess).toBeTruthy();
     });
 
     expect(getListMock).toBeCalledTimes(1);
@@ -248,7 +248,7 @@ describe("useSelect Hook", () => {
     });
 
     await waitFor(() => {
-      expect(result.current.queryResult.isSuccess).toBeTruthy();
+      expect(result.current.query.isSuccess).toBeTruthy();
     });
   });
 
@@ -276,7 +276,7 @@ describe("useSelect Hook", () => {
     );
 
     await waitFor(() => {
-      expect(result.current.queryResult.isSuccess).toBeTruthy();
+      expect(result.current.query.isSuccess).toBeTruthy();
     });
 
     expect(getListMock).toBeCalledTimes(1);
@@ -299,7 +299,7 @@ describe("useSelect Hook", () => {
     });
 
     await waitFor(() => {
-      expect(result.current.queryResult.isSuccess).toBeTruthy();
+      expect(result.current.query.isSuccess).toBeTruthy();
     });
 
     onSearch("");
@@ -308,7 +308,7 @@ describe("useSelect Hook", () => {
     });
 
     await waitFor(() => {
-      expect(result.current.queryResult.isSuccess).toBeTruthy();
+      expect(result.current.query.isSuccess).toBeTruthy();
     });
   });
 
@@ -358,9 +358,7 @@ describe("useSelect Hook", () => {
 
     await waitFor(() => expect(getListMock).toHaveBeenCalledTimes(3));
 
-    await waitFor(() =>
-      expect(result.current.queryResult.isSuccess).toBeTruthy(),
-    );
+    await waitFor(() => expect(result.current.query.isSuccess).toBeTruthy());
   });
 
   it("should respond to onSearch prop changes without breaking the debounce interval", async () => {
@@ -425,9 +423,7 @@ describe("useSelect Hook", () => {
     await waitFor(() => expect(initialOnSearch).toHaveBeenCalledTimes(1));
     await waitFor(() => expect(secondOnSearch).toHaveBeenCalledTimes(1));
 
-    await waitFor(() =>
-      expect(result.current.queryResult.isSuccess).toBeTruthy(),
-    );
+    await waitFor(() => expect(result.current.query.isSuccess).toBeTruthy());
   });
 
   it("should invoke queryOptions methods successfully", async () => {
@@ -438,8 +434,14 @@ describe("useSelect Hook", () => {
         useSelect({
           resource: "posts",
           queryOptions: {
-            onSuccess: () => {
+            queryKey: ["test-key"],
+            queryFn: async () => {
               mockFunc();
+              return MockJSONServer.default.getList({
+                resource: "posts",
+                hasPagination: false,
+                filters: [],
+              });
             },
           },
         }),
@@ -452,7 +454,7 @@ describe("useSelect Hook", () => {
     );
 
     await waitFor(() => {
-      expect(result.current.queryResult.isSuccess).toBeTruthy();
+      expect(result.current.query.isSuccess).toBeTruthy();
     });
 
     const { options } = result.current;
@@ -478,8 +480,14 @@ describe("useSelect Hook", () => {
         useSelect({
           resource: "posts",
           queryOptions: {
-            onSuccess: () => {
+            queryKey: ["test-key-2"],
+            queryFn: async () => {
               mockFunc();
+              return MockJSONServer.default.getList({
+                resource: "posts",
+                hasPagination: false,
+                filters: [],
+              });
             },
           },
           defaultValue: [1],
@@ -493,7 +501,7 @@ describe("useSelect Hook", () => {
     );
 
     await waitFor(() => {
-      expect(result.current.queryResult.isSuccess).toBeTruthy();
+      expect(result.current.query.isSuccess).toBeTruthy();
     });
 
     const { options } = result.current;
@@ -539,7 +547,7 @@ describe("useSelect Hook", () => {
     );
 
     await waitFor(() => {
-      expect(result.current.queryResult.isSuccess).toBeTruthy();
+      expect(result.current.query.isSuccess).toBeTruthy();
     });
 
     expect(result.current.options).toHaveLength(2);
@@ -561,11 +569,6 @@ describe("useSelect Hook", () => {
         useSelect({
           resource: "posts",
           defaultValue: ["1", "2", "3", "4"],
-          defaultValueQueryOptions: {
-            onSuccess: () => {
-              mockFunc();
-            },
-          },
         }),
       {
         wrapper: TestWrapper({
@@ -576,7 +579,7 @@ describe("useSelect Hook", () => {
     );
 
     await waitFor(() => {
-      expect(result.current.queryResult.isSuccess).toBeTruthy();
+      expect(result.current.query.isSuccess).toBeTruthy();
     });
 
     const { options } = result.current;
@@ -610,7 +613,7 @@ describe("useSelect Hook", () => {
     );
 
     await waitFor(() => {
-      expect(result.current.queryResult.isSuccess).toBeTruthy();
+      expect(result.current.query.isSuccess).toBeTruthy();
     });
     const { options } = result.current;
     expect(options).toHaveLength(2);
@@ -642,15 +645,13 @@ describe("useSelect Hook", () => {
           useSelect({
             resource: "posts",
             defaultValue: ["1", "2", "3", "4"],
-            ...(typeof enabled === "undefined"
-              ? {}
-              : {
-                  defaultValueQueryOptions: {
-                    enabled: !enabled,
-                  },
-                }),
+            defaultValueQueryOptions: {
+              enabled: !!enabled,
+              queryKey: ["test-default-value", enabled],
+            },
             queryOptions: {
               enabled: !!enabled,
+              queryKey: ["test-enabled", enabled],
             },
           }),
         {
@@ -747,25 +748,6 @@ describe("useSelect Hook", () => {
             signal: new AbortController().signal,
           },
         },
-        metaData: {
-          queryContext: {
-            queryKey: [
-              "default",
-              "posts",
-              "list",
-              {
-                filters: [],
-                hasPagination: true,
-                pagination: {
-                  current: 1,
-                  mode: "server",
-                  pageSize: 20,
-                },
-              },
-            ],
-            signal: new AbortController().signal,
-          },
-        },
       }),
     );
   });
@@ -833,20 +815,6 @@ describe("useSelect Hook", () => {
           signal: new AbortController().signal,
         },
       },
-      metaData: {
-        queryContext: {
-          queryKey: [
-            "default",
-            "posts",
-            "list",
-            {
-              hasPagination: false,
-              filters: [],
-            },
-          ],
-          signal: new AbortController().signal,
-        },
-      },
       pagination: {
         current: 1,
         mode: "off",
@@ -864,20 +832,6 @@ describe("useSelect Hook", () => {
         hasPagination: false,
         resource: "posts",
         meta: {
-          queryContext: {
-            queryKey: [
-              "default",
-              "posts",
-              "list",
-              {
-                hasPagination: false,
-                filters,
-              },
-            ],
-            signal: new AbortController().signal,
-          },
-        },
-        metaData: {
           queryContext: {
             queryKey: [
               "default",
@@ -1033,25 +987,6 @@ describe("useSelect Hook", () => {
           signal: new AbortController().signal,
         },
       },
-      metaData: {
-        queryContext: {
-          queryKey: [
-            "default",
-            "posts",
-            "list",
-            {
-              filters: [],
-              hasPagination: true,
-              pagination: {
-                current: 2,
-                mode: "server",
-                pageSize: 1,
-              },
-            },
-          ],
-          signal: new AbortController().signal,
-        },
-      },
     });
   });
 
@@ -1160,7 +1095,7 @@ describe("useSelect Hook", () => {
     );
 
     await waitFor(() => {
-      expect(result.current.queryResult.isSuccess).toBeTruthy();
+      expect(result.current.query.isSuccess).toBeTruthy();
     });
 
     const { options } = result.current;
@@ -1213,18 +1148,18 @@ describe("useSelect Hook", () => {
     );
 
     await waitFor(() => {
-      expect(result.current.queryResult.isLoading).toBeTruthy();
+      expect(result.current.query.isLoading).toBeTruthy();
       expect(result.current.overtime.elapsedTime).toBe(900);
       expect(onInterval).toBeCalled();
     });
 
     await waitFor(() => {
-      expect(!result.current.queryResult.isLoading).toBeTruthy();
+      expect(!result.current.query.isLoading).toBeTruthy();
       expect(result.current.overtime.elapsedTime).toBeUndefined();
     });
   });
 
-  it("should work with queryResult and query", async () => {
+  it("should work with query and query", async () => {
     const { result } = renderHook(
       () =>
         useSelect({
@@ -1240,9 +1175,9 @@ describe("useSelect Hook", () => {
     );
 
     await waitFor(() => {
-      expect(result.current.queryResult.isSuccess).toBeTruthy();
+      expect(result.current.query.isSuccess).toBeTruthy();
     });
 
-    expect(result.current.query).toEqual(result.current.queryResult);
+    expect(result.current.query).toEqual(result.current.query);
   });
 });

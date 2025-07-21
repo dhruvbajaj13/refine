@@ -6,7 +6,6 @@ import warnOnce from "warn-once";
 import {
   downloadInBrowser,
   pickDataProvider,
-  pickNotDeprecated,
   useUserFriendlyName,
 } from "@definitions";
 import { useDataProvider, useMeta, useResource } from "@hooks";
@@ -42,23 +41,12 @@ type UseExportOptionsType<
   /**
    * Resource name for API data interactions
    * @default Resource name that it reads from route
-   * @deprecated `resourceName` is deprecated. Use `resource` instead.
-   */
-  resourceName?: string;
-  /**
-   * Resource name for API data interactions
-   * @default Resource name that it reads from route
    */
   resource?: string;
   /**
    * A mapping function that runs for every record. Mapped data will be included in the file contents
    */
   mapData?: MapDataFn<TData, TVariables>;
-  /**
-   *  Sorts records
-   *  @deprecated `sorter` is deprecated. Use `sorters` instead.
-   */
-  sorter?: CrudSort[];
   /**
    *  Sorts records
    */
@@ -74,12 +62,6 @@ type UseExportOptionsType<
   pageSize?: number;
   /**
    *  Used for exporting options
-   *  @type [Options](https://github.com/alexcaza/export-to-csv)
-   * @deprecated `exportOptions` is deprecated. Use `unparseConfig` instead.
-   */
-  exportOptions?: ExportOptions;
-  /**
-   *  Used for exporting options
    *  @type [UnparseConfig](https://github.com/DefinitelyTyped/DefinitelyTyped/tree/master/types/papaparse)
    */
   unparseConfig?: papaparse.UnparseConfig;
@@ -89,9 +71,6 @@ type UseExportOptionsType<
   meta?: MetaQuery;
   /**
    *  Metadata query for `dataProvider`
-   * @deprecated `metaData` is deprecated with refine@4, refine will pass `meta` instead, however, we still support `metaData` for backward compatibility.
-   */
-  metaData?: MetaQuery;
   /**
    * If there is more than one `dataProvider`, you should use the `dataProviderName` that you will use.
    */
@@ -124,18 +103,14 @@ export const useExport = <
   TData extends BaseRecord = BaseRecord,
   TVariables = any,
 >({
-  resourceName,
   resource: resourceFromProps,
-  sorter,
   sorters,
   filters,
   maxItemCount,
   pageSize = 20,
   mapData = (item) => item as any,
-  exportOptions,
   unparseConfig,
   meta,
-  metaData,
   dataProviderName,
   onError,
   download,
@@ -144,9 +119,7 @@ export const useExport = <
 
   const dataProvider = useDataProvider();
   const getMeta = useMeta();
-  const { resource, resources, identifier } = useResource(
-    pickNotDeprecated(resourceFromProps, resourceName),
-  );
+  const { resource, resources, identifier } = useResource(resourceFromProps);
   const getFriendlyName = useUserFriendlyName();
 
   const filename = `${getFriendlyName(
@@ -160,7 +133,7 @@ export const useExport = <
 
   const combinedMeta = getMeta({
     resource,
-    meta: pickNotDeprecated(meta, metaData),
+    meta: meta,
   });
 
   const triggerExport = async () => {
@@ -175,15 +148,13 @@ export const useExport = <
         const { data, total } = await getList<TData>({
           resource: resource?.name ?? "",
           filters,
-          sort: pickNotDeprecated(sorters, sorter),
-          sorters: pickNotDeprecated(sorters, sorter),
+          sorters,
           pagination: {
             current,
             pageSize,
             mode: "server",
           },
           meta: combinedMeta,
-          metaData: combinedMeta,
         });
 
         current++;
@@ -211,26 +182,13 @@ export const useExport = <
     const hasUnparseConfig =
       typeof unparseConfig !== "undefined" && unparseConfig !== null;
 
-    warnOnce(
-      hasUnparseConfig &&
-        typeof exportOptions !== "undefined" &&
-        exportOptions !== null,
-      `[useExport]: resource: "${identifier}" \n\nBoth \`unparseConfig\` and \`exportOptions\` are set, \`unparseConfig\` will take precedence`,
-    );
-
     const options: ExportOptions = {
       filename,
       useKeysAsHeaders: true,
       useBom: true, // original default
       title: "My Generated Report", // original default
       quoteStrings: '"', // original default
-      ...exportOptions,
     };
-
-    warnOnce(
-      exportOptions?.decimalSeparator !== undefined,
-      `[useExport]: resource: "${identifier}" \n\nUse of \`decimalSeparator\` no longer supported, please use \`mapData\` instead.\n\nSee https://refine.dev/docs/api-reference/core/hooks/import-export/useExport/`,
-    );
 
     if (!hasUnparseConfig) {
       unparseConfig = {

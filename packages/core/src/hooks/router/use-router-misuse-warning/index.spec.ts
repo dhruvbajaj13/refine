@@ -1,6 +1,6 @@
 import { renderHook } from "@testing-library/react";
 
-import { MockJSONServer, TestWrapper, mockLegacyRouterProvider } from "@test";
+import { MockJSONServer, TestWrapper } from "@test";
 import * as checkRouterPropMisuse from "@definitions/helpers/check-router-prop-misuse";
 
 import { useRouterMisuseWarning } from "./";
@@ -13,15 +13,12 @@ describe("useRouterMisuseWarning Hook", () => {
       "checkRouterPropMisuse",
     );
 
-    const { rerender } = renderHook(
-      () => useRouterMisuseWarning(mockLegacyRouterProvider()),
-      {
-        wrapper: TestWrapper({
-          resources: [{ name: "posts" }],
-          dataProvider: MockJSONServer,
-        }),
-      },
-    );
+    const { rerender } = renderHook(() => useRouterMisuseWarning({}), {
+      wrapper: TestWrapper({
+        resources: [{ name: "posts" }],
+        dataProvider: MockJSONServer,
+      }),
+    });
 
     expect(checkRouterPropMisuseMock).toBeCalledTimes(1);
 

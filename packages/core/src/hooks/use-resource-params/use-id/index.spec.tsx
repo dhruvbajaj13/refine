@@ -4,7 +4,7 @@ import { TestWrapper } from "@test";
 
 import { useId } from ".";
 
-import { mockRouterProvider, mockLegacyRouterProvider } from "@test";
+import { mockRouterProvider } from "@test";
 
 describe("useId Hook", () => {
   it("returns id from props", () => {
@@ -35,17 +35,7 @@ describe("useId Hook", () => {
 
   it("returns id from legacy router", () => {
     const { result } = renderHook(() => useId(), {
-      wrapper: TestWrapper({
-        legacyRouterProvider: {
-          ...mockLegacyRouterProvider(),
-          useParams: () =>
-            ({
-              resource: "posts",
-              action: "edit",
-              id: 123,
-            }) as any,
-        },
-      }),
+      wrapper: TestWrapper({}),
     });
 
     expect(result.current).toBe(123);
@@ -65,17 +55,7 @@ describe("useId Hook", () => {
 
   it("returns id from props and ignores legacy router", () => {
     const { result } = renderHook(() => useId(123), {
-      wrapper: TestWrapper({
-        legacyRouterProvider: {
-          ...mockLegacyRouterProvider(),
-          useParams: () =>
-            ({
-              resource: "posts",
-              action: "edit",
-              id: 456,
-            }) as any,
-        },
-      }),
+      wrapper: TestWrapper({}),
     });
 
     expect(result.current).toBe(123);

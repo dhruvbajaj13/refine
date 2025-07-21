@@ -13,7 +13,6 @@ import type { IRefineContextProvider } from "../../contexts/refine/types";
 import { useList } from "./useList";
 
 const mockRefineProvider: IRefineContextProvider = {
-  hasDashboard: false,
   ...defaultRefineOptions,
   options: defaultRefineOptions,
 };
@@ -69,6 +68,7 @@ describe("useList Hook", () => {
           meta: {
             queryContext: {
               queryKey: [
+                "data",
                 "default",
                 "posts",
                 "list",
@@ -76,7 +76,7 @@ describe("useList Hook", () => {
                   hasPagination: true,
                   pagination: {
                     current: 1,
-                    mode: "server",
+                    mode: mode || "server",
                     pageSize: 10,
                   },
                 },
@@ -127,7 +127,13 @@ describe("useList Hook", () => {
           },
           meta: {
             queryContext: {
-              queryKey: ["default", "posts", "list", { hasPagination: false }],
+              queryKey: [
+                "data",
+                "default",
+                "posts",
+                "list",
+                { hasPagination: false },
+              ],
               signal: new AbortController().signal,
             },
           },
@@ -646,8 +652,11 @@ describe("useList Hook", () => {
                 getList: getListMock,
               },
             },
-            legacyAuthProvider: {
-              checkError: onErrorMock,
+            authProvider: {
+              login: () => Promise.resolve({ success: true }),
+              logout: () => Promise.resolve({ success: true }),
+              check: () => Promise.resolve({ authenticated: true }),
+              onError: onErrorMock,
             },
             resources: [{ name: "posts" }],
           }),
@@ -663,18 +672,20 @@ describe("useList Hook", () => {
   });
 
   describe("queryOptions", () => {
-    it("should run `queryOptions.onSuccess` callback on success", async () => {
+    it("should run `onSuccess` callback on success", async () => {
       const onSuccessMock = jest.fn();
       const getListMock = jest.fn().mockResolvedValue({
         data: [{ id: 1, title: "foo" }],
+        total: 1,
       });
 
       const { result } = renderHook(
         () =>
           useList({
             resource: "posts",
+            onSuccess: onSuccessMock,
             queryOptions: {
-              onSuccess: onSuccessMock,
+              enabled: true,
             },
           }),
         {
@@ -696,10 +707,11 @@ describe("useList Hook", () => {
 
       expect(onSuccessMock).toBeCalledWith({
         data: [{ id: 1, title: "foo" }],
+        total: 1,
       });
     });
 
-    it("should run `queryOptions.onError` callback on error", async () => {
+    it("should run `onError` callback on error", async () => {
       const onErrorMock = jest.fn();
       const getListMcok = jest.fn().mockRejectedValue(new Error("Error"));
 
@@ -707,8 +719,9 @@ describe("useList Hook", () => {
         () =>
           useList({
             resource: "posts",
+            onError: onErrorMock,
             queryOptions: {
-              onError: onErrorMock,
+              enabled: true,
             },
           }),
         {
@@ -826,16 +839,13 @@ describe("useList Hook", () => {
       () =>
         useList({
           resource: "posts",
-          config: {
-            filters: [{ field: "id", operator: "eq", value: 1 }],
-            hasPagination: false,
-            pagination: {
-              mode: "client",
-              current: 10,
-              pageSize: 5,
-            },
-            sort: [{ field: "id", order: "asc" }],
+          filters: [{ field: "id", operator: "eq", value: 1 }],
+          pagination: {
+            mode: "client",
+            current: 10,
+            pageSize: 5,
           },
+          sorters: [{ field: "id", order: "asc" }],
         }),
       {
         wrapper: TestWrapper({
@@ -857,13 +867,12 @@ describe("useList Hook", () => {
     expect(getListMock).toBeCalledWith(
       expect.objectContaining({
         filters: [{ field: "id", operator: "eq", value: 1 }],
-        hasPagination: false,
         pagination: {
-          mode: "off",
+          mode: "client",
           current: 10,
           pageSize: 5,
         },
-        sort: [{ field: "id", order: "asc" }],
+        sorters: [{ field: "id", order: "asc" }],
       }),
     );
   });
@@ -1054,6 +1063,7 @@ describe("useList Hook", () => {
           meta: expect.objectContaining({
             queryContext: expect.objectContaining({
               queryKey: [
+                "data",
                 "default",
                 "featured-posts",
                 "list",
@@ -1153,13 +1163,13 @@ describe("useList Hook", () => {
     );
 
     await waitFor(() => {
-      expect(result.current.isLoading).toBeTruthy();
+      expect(result.current.isPending).toBeTruthy();
       expect(result.current.overtime.elapsedTime).toBe(900);
       expect(onInterval).toBeCalled();
     });
 
     await waitFor(() => {
-      expect(result.current.isLoading).toBeFalsy();
+      expect(result.current.isPending).toBeFalsy();
       expect(result.current.overtime.elapsedTime).toBeUndefined();
     });
   });

@@ -32,7 +32,7 @@ describe("useMany Hook", () => {
     );
 
     await waitFor(() => {
-      expect(!result.current.isLoading).toBeTruthy();
+      expect(!result.current.isPending).toBeTruthy();
     });
 
     const { status, data } = result.current;
@@ -106,13 +106,13 @@ describe("useMany Hook", () => {
     );
 
     await waitFor(() => {
-      expect(result.current.isLoading).toBeTruthy();
+      expect(result.current.isPending).toBeTruthy();
       expect(result.current.overtime.elapsedTime).toBe(900);
       expect(onInterval).toBeCalled();
     });
 
     await waitFor(() => {
-      expect(result.current.isLoading).toBeFalsy();
+      expect(result.current.isPending).toBeFalsy();
       expect(result.current.overtime.elapsedTime).toBeUndefined();
     });
   });
@@ -147,7 +147,7 @@ describe("useMany Hook", () => {
         );
 
         await waitFor(() => {
-          expect(!result.current.isLoading).toBeTruthy();
+          expect(!result.current.isPending).toBeTruthy();
         });
 
         expect(onSubscribeMock).toBeCalled();
@@ -190,7 +190,7 @@ describe("useMany Hook", () => {
       );
 
       await waitFor(() => {
-        expect(!result.current.isLoading).toBeTruthy();
+        expect(!result.current.isPending).toBeTruthy();
       });
 
       expect(onSubscribeMock).not.toBeCalled();
@@ -223,7 +223,7 @@ describe("useMany Hook", () => {
       );
 
       await waitFor(() => {
-        expect(!result.current.isLoading).toBeTruthy();
+        expect(!result.current.isPending).toBeTruthy();
       });
 
       expect(onSubscribeMock).toBeCalled();
@@ -314,7 +314,7 @@ describe("useMany Hook", () => {
     );
 
     await waitFor(() => {
-      expect(result.current.isLoading).toBeFalsy();
+      expect(result.current.isPending).toBeFalsy();
     });
 
     expect(getOneMock).toBeCalledTimes(2);
@@ -504,6 +504,9 @@ describe("useMany Hook", () => {
               },
             },
             authProvider: {
+              login: () => Promise.resolve({ success: true }),
+              logout: () => Promise.resolve({ success: true }),
+              check: () => Promise.resolve({ authenticated: true }),
               onError: onErrorMock,
             } as any,
             resources: [{ name: "posts" }],
@@ -536,8 +539,11 @@ describe("useMany Hook", () => {
                 getMany: getManyMock,
               },
             },
-            legacyAuthProvider: {
-              checkError: onErrorMock,
+            authProvider: {
+              login: () => Promise.resolve({ success: true }),
+              logout: () => Promise.resolve({ success: true }),
+              check: () => Promise.resolve({ authenticated: true }),
+              onError: onErrorMock,
             },
             resources: [{ name: "posts" }],
           }),
@@ -553,7 +559,7 @@ describe("useMany Hook", () => {
   });
 
   describe("queryOptions", () => {
-    it("should run `queryOptions.onSuccess` callback on success", async () => {
+    it("should run `onSuccess` callback on success", async () => {
       const onSuccessMock = jest.fn();
       const getManyMock = jest.fn().mockResolvedValue({
         data: [{ id: 1, title: "foo" }],
@@ -564,8 +570,9 @@ describe("useMany Hook", () => {
           useMany({
             resource: "posts",
             ids: ["1", "2"],
+            onSuccess: onSuccessMock,
             queryOptions: {
-              onSuccess: onSuccessMock,
+              enabled: true,
             },
           }),
         {
@@ -590,7 +597,7 @@ describe("useMany Hook", () => {
       });
     });
 
-    it("should run `queryOptions.onError` callback on error", async () => {
+    it("should run `onError` callback on error", async () => {
       const onErrorMock = jest.fn();
       const getManyMcok = jest.fn().mockRejectedValue(new Error("Error"));
 
@@ -599,8 +606,9 @@ describe("useMany Hook", () => {
           useMany({
             resource: "posts",
             ids: ["1", "2"],
+            onError: onErrorMock,
             queryOptions: {
-              onError: onErrorMock,
+              enabled: true,
             },
           }),
         {
@@ -901,9 +909,10 @@ describe("useMany Hook", () => {
           meta: expect.objectContaining({
             queryContext: expect.objectContaining({
               queryKey: [
+                "data",
                 "default",
                 "featured-posts",
-                "getMany",
+                "many",
                 ["1", "2"],
                 expect.any(Object),
               ],
@@ -993,7 +1002,7 @@ describe("useMany Hook", () => {
         },
       );
 
-      expect(result.result.current.isLoading).toBeTruthy();
+      expect(result.result.current.isPending).toBeTruthy();
       expect(result.result.current.fetchStatus).toBe("idle");
       expect(getManyMock).not.toHaveBeenCalled();
       expect(warnMock).toHaveBeenCalledWith(
@@ -1029,7 +1038,7 @@ describe("useMany Hook", () => {
         },
       );
 
-      expect(result.result.current.isLoading).toBeTruthy();
+      expect(result.result.current.isPending).toBeTruthy();
       expect(result.result.current.fetchStatus).toBe("idle");
       expect(getManyMock).not.toHaveBeenCalled();
       expect(warnMock).toHaveBeenCalledWith(
@@ -1068,7 +1077,7 @@ describe("useMany Hook", () => {
         },
       );
 
-      expect(result.result.current.isLoading).toBeTruthy();
+      expect(result.result.current.isPending).toBeTruthy();
       expect(result.result.current.fetchStatus).toBe("fetching");
       expect(getManyMock).toHaveBeenCalled();
       expect(warnMock).not.toHaveBeenCalled();

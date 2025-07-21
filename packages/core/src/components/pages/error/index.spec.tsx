@@ -2,11 +2,7 @@ import React from "react";
 
 import { fireEvent, render, waitFor } from "@testing-library/react";
 
-import {
-  TestWrapper,
-  mockLegacyRouterProvider,
-  mockRouterProvider,
-} from "@test";
+import { TestWrapper, mockRouterProvider } from "@test";
 
 import { ErrorComponent } from ".";
 
@@ -48,16 +44,7 @@ describe("ErrorComponent", () => {
     const pushMock = jest.fn();
 
     const { getByText } = render(<ErrorComponent />, {
-      wrapper: TestWrapper({
-        legacyRouterProvider: {
-          ...mockLegacyRouterProvider(),
-          useHistory: () => ({
-            goBack: jest.fn(),
-            push: pushMock,
-            replace: jest.fn(),
-          }),
-        },
-      }),
+      wrapper: TestWrapper({}),
     });
 
     fireEvent.click(getByText("Back Home"));

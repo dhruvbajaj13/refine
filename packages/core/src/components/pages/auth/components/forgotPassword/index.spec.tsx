@@ -2,7 +2,7 @@ import React from "react";
 
 import { fireEvent, render, waitFor } from "@testing-library/react";
 
-import { TestWrapper, mockLegacyRouterProvider } from "@test/index";
+import { TestWrapper } from "@test/index";
 
 import { ForgotPasswordPage } from ".";
 import type { AuthProvider } from "../../../../../contexts/auth/types";
@@ -152,12 +152,7 @@ describe("Auth Page Forgot Password", () => {
     const LinkComponentMock = jest.fn();
 
     render(<ForgotPasswordPage />, {
-      wrapper: TestWrapper({
-        legacyRouterProvider: {
-          ...mockLegacyRouterProvider(),
-          Link: LinkComponentMock,
-        },
-      }),
+      wrapper: TestWrapper({}),
     });
 
     expect(LinkComponentMock).toBeCalledWith(

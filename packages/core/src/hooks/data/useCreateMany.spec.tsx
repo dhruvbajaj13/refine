@@ -664,13 +664,13 @@ describe("useCreateMany Hook [with params]", () => {
     });
 
     await waitFor(() => {
-      expect(result.current.isLoading).toBeTruthy();
+      expect(result.current.isPending).toBeTruthy();
       expect(result.current.overtime.elapsedTime).toBe(900);
-      expect(onInterval).toBeCalled();
+      expect(onInterval).toHaveBeenCalled();
     });
 
     await waitFor(() => {
-      expect(result.current.isLoading).toBeFalsy();
+      expect(result.current.isPending).toBeFalsy();
       expect(result.current.overtime.elapsedTime).toBeUndefined();
     });
   });
@@ -1516,13 +1516,13 @@ describe("useCreateMany Hook [with props]", () => {
     });
 
     await waitFor(() => {
-      expect(result.current.isLoading).toBeTruthy();
+      expect(result.current.isPending).toBeTruthy();
       expect(result.current.overtime.elapsedTime).toBe(900);
       expect(onInterval).toBeCalled();
     });
 
     await waitFor(() => {
-      expect(result.current.isLoading).toBeFalsy();
+      expect(result.current.isPending).toBeFalsy();
       expect(result.current.overtime.elapsedTime).toBeUndefined();
     });
   });
@@ -1712,7 +1712,6 @@ describe("useCreateMany Hook should work with params and props", () => {
       resource: options.params.resource,
       variables: options.params.values,
       meta: options.params.meta,
-      metaData: options.params.meta,
     });
     expect(openNotificationMock).toHaveBeenCalledWith({
       description: "Successfully created post",

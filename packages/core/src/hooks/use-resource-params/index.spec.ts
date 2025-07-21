@@ -1,10 +1,5 @@
 import { renderHook, waitFor } from "@testing-library/react";
-import {
-  TestWrapper,
-  act,
-  mockLegacyRouterProvider,
-  mockRouterProvider,
-} from "@test";
+import { TestWrapper, act, mockRouterProvider } from "@test";
 
 import { useResourceParams } from ".";
 
@@ -558,11 +553,7 @@ describe("useResourceParams Hook", () => {
   describe("with legacyRouterProvider", () => {
     it("returns undefined when legacyRouterProvider doesn't have params", () => {
       const { result } = renderHook(() => useResourceParams(), {
-        wrapper: TestWrapper({
-          legacyRouterProvider: {
-            ...mockLegacyRouterProvider(),
-          },
-        }),
+        wrapper: TestWrapper({}),
       });
 
       expect(result.current).toMatchObject(
@@ -578,17 +569,7 @@ describe("useResourceParams Hook", () => {
 
     it("returns params from legacyRouterProvider", () => {
       const { result } = renderHook(() => useResourceParams(), {
-        wrapper: TestWrapper({
-          legacyRouterProvider: {
-            ...mockLegacyRouterProvider(),
-            useParams: () =>
-              ({
-                resource: "posts",
-                action: "edit",
-                id: 123,
-              }) as any,
-          },
-        }),
+        wrapper: TestWrapper({}),
       });
 
       expect(result.current).toMatchObject(
@@ -604,15 +585,7 @@ describe("useResourceParams Hook", () => {
 
     it("returns formAction create when action is not defined", () => {
       const { result } = renderHook(() => useResourceParams(), {
-        wrapper: TestWrapper({
-          legacyRouterProvider: {
-            ...mockLegacyRouterProvider(),
-            useParams: () =>
-              ({
-                resource: "posts",
-              }) as any,
-          },
-        }),
+        wrapper: TestWrapper({}),
       });
 
       expect(result.current).toMatchObject(
@@ -628,16 +601,7 @@ describe("useResourceParams Hook", () => {
 
     it("returns formAction create when action from route is list", () => {
       const { result } = renderHook(() => useResourceParams(), {
-        wrapper: TestWrapper({
-          legacyRouterProvider: {
-            ...mockLegacyRouterProvider(),
-            useParams: () =>
-              ({
-                resource: "posts",
-                action: "list",
-              }) as any,
-          },
-        }),
+        wrapper: TestWrapper({}),
       });
 
       expect(result.current).toMatchObject(
@@ -656,11 +620,7 @@ describe("useResourceParams Hook", () => {
         () =>
           useResourceParams({ resource: "posts", id: "123", action: "clone" }),
         {
-          wrapper: TestWrapper({
-            legacyRouterProvider: {
-              ...mockLegacyRouterProvider(),
-            },
-          }),
+          wrapper: TestWrapper({}),
         },
       );
 
@@ -677,16 +637,7 @@ describe("useResourceParams Hook", () => {
 
     it("should return id from props", () => {
       const { result } = renderHook(() => useResourceParams({ id: "123" }), {
-        wrapper: TestWrapper({
-          legacyRouterProvider: {
-            ...mockLegacyRouterProvider(),
-            useParams: () =>
-              ({
-                resource: "posts",
-                id: "456",
-              }) as any,
-          },
-        }),
+        wrapper: TestWrapper({}),
       });
 
       expect(result.current).toMatchObject(
@@ -702,16 +653,7 @@ describe("useResourceParams Hook", () => {
 
     it("should return id from routes", () => {
       const { result } = renderHook(() => useResourceParams(), {
-        wrapper: TestWrapper({
-          legacyRouterProvider: {
-            ...mockLegacyRouterProvider(),
-            useParams: () =>
-              ({
-                resource: "posts",
-                id: "123",
-              }) as any,
-          },
-        }),
+        wrapper: TestWrapper({}),
       });
 
       expect(result.current).toMatchObject(
@@ -730,14 +672,6 @@ describe("useResourceParams Hook", () => {
         () => useResourceParams({ resource: "posts" }),
         {
           wrapper: TestWrapper({
-            legacyRouterProvider: {
-              ...mockLegacyRouterProvider(),
-              useParams: () =>
-                ({
-                  resource: "posts",
-                  id: "123",
-                }) as any,
-            },
             resources: [{ name: "posts", identifier: "posts" }],
           }),
         },
@@ -759,14 +693,6 @@ describe("useResourceParams Hook", () => {
         () => useResourceParams({ resource: "categories", id: "3" }),
         {
           wrapper: TestWrapper({
-            legacyRouterProvider: {
-              ...mockLegacyRouterProvider(),
-              useParams: () =>
-                ({
-                  resource: "posts",
-                  id: "123",
-                }) as any,
-            },
             resources: [{ name: "categories", identifier: "categories" }],
           }),
         },
@@ -788,9 +714,6 @@ describe("useResourceParams Hook", () => {
         () => useResourceParams({ resource: "categories" }),
         {
           wrapper: TestWrapper({
-            legacyRouterProvider: {
-              ...mockLegacyRouterProvider(),
-            },
             resources: [{ name: "categories", identifier: "categories" }],
           }),
         },
@@ -812,15 +735,6 @@ describe("useResourceParams Hook", () => {
         () => useResourceParams({ resource: "categories" }),
         {
           wrapper: TestWrapper({
-            legacyRouterProvider: {
-              ...mockLegacyRouterProvider(),
-              useParams: () =>
-                ({
-                  resource: "posts",
-                  action: "edit",
-                  id: "123",
-                }) as any,
-            },
             resources: [{ name: "categories", identifier: "categories" }],
           }),
         },
@@ -842,15 +756,6 @@ describe("useResourceParams Hook", () => {
         () => useResourceParams({ resource: "posts" }),
         {
           wrapper: TestWrapper({
-            legacyRouterProvider: {
-              ...mockLegacyRouterProvider(),
-              useParams: () =>
-                ({
-                  resource: "posts",
-                  id: "123",
-                  action: "edit",
-                }) as any,
-            },
             resources: [{ name: "posts", identifier: "posts" }],
           }),
         },
@@ -870,15 +775,6 @@ describe("useResourceParams Hook", () => {
     it("should return formAction from route if no custom resource is passed", () => {
       const { result } = renderHook(() => useResourceParams(), {
         wrapper: TestWrapper({
-          legacyRouterProvider: {
-            ...mockLegacyRouterProvider(),
-            useParams: () =>
-              ({
-                id: "123",
-                action: "edit",
-                resource: "posts",
-              }) as any,
-          },
           resources: [{ name: "posts", identifier: "posts" }],
         }),
       });
@@ -896,17 +792,7 @@ describe("useResourceParams Hook", () => {
 
     it("should set id by setId", async () => {
       const { result } = renderHook(() => useResourceParams(), {
-        wrapper: TestWrapper({
-          legacyRouterProvider: {
-            ...mockLegacyRouterProvider(),
-            useParams: () =>
-              ({
-                resource: "posts",
-                id: 123,
-                action: "edit",
-              }) as any,
-          },
-        }),
+        wrapper: TestWrapper({}),
       });
 
       act(() => {

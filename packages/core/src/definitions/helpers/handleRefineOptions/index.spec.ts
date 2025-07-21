@@ -21,7 +21,6 @@ describe("handleRefineOptions", () => {
         clientConfig: {
           defaultOptions: { queries: { enabled: false } },
         },
-        devtoolConfig: false,
       },
       undoableTimeout: 1000,
       syncWithLocation: true,
@@ -72,7 +71,6 @@ describe("handleRefineOptions", () => {
       clientConfig: {
         defaultOptions: { queries: { enabled: false } },
       },
-      devtoolConfig: false,
     });
   });
 
@@ -85,7 +83,6 @@ describe("handleRefineOptions", () => {
         clientConfig: {
           defaultOptions: { queries: { enabled: false } },
         },
-        devtoolConfig: false,
       },
       undoableTimeout: 1000,
       syncWithLocation: true,
@@ -143,7 +140,6 @@ describe("handleRefineOptions", () => {
       clientConfig: {
         defaultOptions: { queries: { enabled: false } },
       },
-      devtoolConfig: false,
     });
   });
 
@@ -226,7 +222,6 @@ describe("handleRefineOptions", () => {
     const options: IRefineOptions = {
       reactQuery: {
         clientConfig: queryClient,
-        devtoolConfig: false,
       },
     };
 
@@ -234,7 +229,6 @@ describe("handleRefineOptions", () => {
 
     expect(reactQueryWithDefaults).toEqual({
       clientConfig: queryClient,
-      devtoolConfig: false,
     });
   });
 

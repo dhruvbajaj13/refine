@@ -103,13 +103,13 @@ describe("useCreate Hook [with params]", () => {
     });
 
     await waitFor(() => {
-      expect(result.current.isLoading).toBeTruthy();
+      expect(result.current.isPending).toBeTruthy();
       expect(result.current.overtime.elapsedTime).toBe(900);
       expect(onInterval).toBeCalled();
     });
 
     await waitFor(() => {
-      expect(result.current.isLoading).toBeFalsy();
+      expect(result.current.isPending).toBeFalsy();
       expect(result.current.overtime.elapsedTime).toBeUndefined();
     });
   });
@@ -458,7 +458,7 @@ describe("useCreate Hook [with params]", () => {
       expect(onErrorMock).toBeCalledWith(new Error("Error"));
     });
 
-    it("should call `checkError` from the legacy auth provider on error", async () => {
+    it("should call `onError` from the auth provider on error", async () => {
       const createMock = jest.fn().mockRejectedValue(new Error("Error"));
       const onErrorMock = jest.fn();
 
@@ -470,8 +470,11 @@ describe("useCreate Hook [with params]", () => {
               create: createMock,
             },
           },
-          legacyAuthProvider: {
-            checkError: onErrorMock,
+          authProvider: {
+            login: () => Promise.resolve({ success: true }),
+            logout: () => Promise.resolve({ success: true }),
+            check: () => Promise.resolve({ authenticated: true }),
+            onError: onErrorMock,
           },
           resources: [{ name: "posts" }],
         }),
@@ -946,13 +949,13 @@ describe("useCreate Hook [with props]", () => {
     });
 
     await waitFor(() => {
-      expect(result.current.isLoading).toBeTruthy();
+      expect(result.current.isPending).toBeTruthy();
       expect(result.current.overtime.elapsedTime).toBe(900);
       expect(onInterval).toBeCalled();
     });
 
     await waitFor(() => {
-      expect(result.current.isLoading).toBeFalsy();
+      expect(result.current.isPending).toBeFalsy();
       expect(result.current.overtime.elapsedTime).toBeUndefined();
     });
   });
@@ -1340,8 +1343,11 @@ describe("useCreate Hook [with props]", () => {
               create: createMock,
             },
           },
-          legacyAuthProvider: {
-            checkError: onErrorMock,
+          authProvider: {
+            login: () => Promise.resolve({ success: true }),
+            logout: () => Promise.resolve({ success: true }),
+            check: () => Promise.resolve({ authenticated: true }),
+            onError: onErrorMock,
           },
           resources: [{ name: "posts" }],
         }),
@@ -1796,7 +1802,6 @@ describe("useCreate Hook should work with params and props", () => {
       resource: options.params.resource,
       variables: options.params.values,
       meta: options.params.meta,
-      metaData: options.params.meta,
     });
     expect(openNotificationMock).toHaveBeenCalledWith({
       description: "Successfully created post",

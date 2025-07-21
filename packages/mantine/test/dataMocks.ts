@@ -5,14 +5,6 @@ import type {
   ParsedParams,
   RouterBindings,
 } from "@refinedev/core";
-import { useParams, useLocation, Link, useNavigate } from "react-router";
-
-/* import {
-    IDataContext,
-    IRouterContext,
-    IAccessControlContext,
-    ILiveContext,
-} from "@refinedev/core"; */
 
 export const posts = [
   {
@@ -103,29 +95,6 @@ export const mockRouterBindings = ({
   return bindings;
 };
 
-export const MockLegacyRouterProvider = {
-  useHistory: () => {
-    const navigate = useNavigate();
-
-    return {
-      push: navigate,
-      replace: (path: string) => {
-        navigate(path, { replace: true });
-      },
-      goBack: () => {
-        navigate(-1);
-      },
-    };
-  },
-  useLocation,
-  useParams: () => {
-    const params = useParams();
-
-    return params as any;
-  },
-  Link,
-  Prompt: () => null,
-};
 export const MockAccessControlProvider: any = {
   can: () => Promise.resolve({ can: true }),
 };

@@ -1,35 +1,23 @@
 import { renderHook } from "@testing-library/react";
 
-import { MockJSONServer, TestWrapper, mockLegacyRouterProvider } from "@test";
+import { MockJSONServer, TestWrapper } from "@test";
 
-import type { LegacyRouterProvider } from "../../contexts/router/legacy/types";
 import { useRedirectionAfterSubmission } from "../redirection";
 
-const legacyPushMock = jest.fn();
-const legacyReplaceMock = jest.fn();
-
-const legacyRouterProvider: LegacyRouterProvider = {
-  ...mockLegacyRouterProvider(),
-  useHistory: () => {
-    return {
-      goBack: jest.fn(),
-      push: legacyPushMock,
-      replace: legacyReplaceMock,
-    };
-  },
-};
+const goMock = jest.fn();
 
 describe("redirectionAfterSubmission Hook", () => {
   beforeEach(() => {
-    legacyPushMock.mockReset();
-    legacyReplaceMock.mockReset();
+    goMock.mockReset();
   });
 
   const { result } = renderHook(() => useRedirectionAfterSubmission(), {
     wrapper: TestWrapper({
       dataProvider: MockJSONServer,
       resources: [{ name: "posts", route: "posts" }],
-      legacyRouterProvider,
+      routerProvider: {
+        go: goMock,
+      },
     }),
   });
 
@@ -40,7 +28,7 @@ describe("redirectionAfterSubmission Hook", () => {
       id: "1",
     });
 
-    expect(legacyPushMock).toBeCalledWith("/posts");
+    expect(goMock).toBeCalledWith({ to: "/posts", type: "push" });
   });
 
   it("redirect false", async () => {
@@ -50,7 +38,7 @@ describe("redirectionAfterSubmission Hook", () => {
       id: "1",
     });
 
-    expect(legacyPushMock).not.toBeCalled();
+    expect(goMock).not.toBeCalled();
   });
 
   it("redirect show, canShow false", async () => {
@@ -64,7 +52,7 @@ describe("redirectionAfterSubmission Hook", () => {
       id: "1",
     });
 
-    expect(legacyPushMock).toBeCalledWith("/posts");
+    expect(goMock).toBeCalledWith({ to: "/posts", type: "push" });
   });
 
   it("redirect show, canShow true", async () => {
@@ -79,7 +67,7 @@ describe("redirectionAfterSubmission Hook", () => {
       id: "1",
     });
 
-    expect(legacyPushMock).toBeCalledWith("/posts/show/1");
+    expect(goMock).toBeCalledWith({ to: "/posts/show/1", type: "push" });
   });
 
   it("redirect edit, canEdit true", async () => {
@@ -94,7 +82,7 @@ describe("redirectionAfterSubmission Hook", () => {
       id: "1",
     });
 
-    expect(legacyPushMock).toBeCalledWith("/posts/edit/1");
+    expect(goMock).toBeCalledWith({ to: "/posts/edit/1", type: "push" });
   });
 
   it("redirect edit, canEdit false", async () => {
@@ -109,7 +97,7 @@ describe("redirectionAfterSubmission Hook", () => {
       id: "1",
     });
 
-    expect(legacyPushMock).toBeCalledWith("/posts");
+    expect(goMock).toBeCalledWith({ to: "/posts", type: "push" });
   });
 
   it("redirect create, canCreate true", async () => {
@@ -123,7 +111,7 @@ describe("redirectionAfterSubmission Hook", () => {
       },
     });
 
-    expect(legacyPushMock).toBeCalledWith("/posts/create");
+    expect(goMock).toBeCalledWith({ to: "/posts/create", type: "push" });
   });
 
   it("redirect create, canCreate false", async () => {
@@ -137,7 +125,7 @@ describe("redirectionAfterSubmission Hook", () => {
       },
     });
 
-    expect(legacyPushMock).toBeCalledWith("/posts");
+    expect(goMock).toBeCalledWith({ to: "/posts", type: "push" });
   });
 
   it("redirect edit, canEdit true, id null", async () => {
@@ -151,7 +139,7 @@ describe("redirectionAfterSubmission Hook", () => {
       },
     });
 
-    expect(legacyPushMock).toBeCalledWith("/posts");
+    expect(goMock).toBeCalledWith({ to: "/posts", type: "push" });
   });
 
   it("redirect show, canShow true, id null", async () => {
@@ -166,6 +154,6 @@ describe("redirectionAfterSubmission Hook", () => {
       },
     });
 
-    expect(legacyPushMock).toBeCalledWith("/posts");
+    expect(goMock).toBeCalledWith({ to: "/posts", type: "push" });
   });
 });

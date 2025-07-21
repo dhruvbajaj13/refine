@@ -1,20 +1,10 @@
 import { renderHook, waitFor } from "@testing-library/react";
 import { act } from "react-dom/test-utils";
 
-import {
-  MockJSONServer,
-  TestWrapper,
-  mockLegacyRouterProvider,
-  mockRouterProvider,
-} from "@test";
+import { MockJSONServer, TestWrapper, mockRouterProvider } from "@test";
 
 import { useTable } from ".";
-import type {
-  CrudFilter,
-  CrudSort,
-  Pagination,
-} from "../../contexts/data/types";
-import * as useRouterType from "../../contexts/router/picker";
+import type { CrudFilter, CrudSort } from "../../contexts/data/types";
 import { defaultRefineOptions } from "@contexts/refine";
 
 const defaultPagination = {
@@ -46,11 +36,11 @@ describe("useTable Hook", () => {
     });
 
     await waitFor(() => {
-      expect(!result.current.tableQueryResult.isLoading).toBeTruthy();
+      expect(!result.current.tableQuery.isLoading).toBeTruthy();
     });
 
     const {
-      tableQueryResult: { data },
+      tableQuery: { data },
       pageSize,
       current,
       pageCount,
@@ -81,7 +71,7 @@ describe("useTable Hook", () => {
     );
 
     await waitFor(() => {
-      expect(!result.current.tableQueryResult.isLoading).toBeTruthy();
+      expect(!result.current.tableQuery.isLoading).toBeTruthy();
     });
 
     const { pageSize, current, pageCount } = result.current;
@@ -110,11 +100,11 @@ describe("useTable Hook", () => {
     );
 
     await waitFor(() => {
-      expect(!result.current.tableQueryResult.isLoading).toBeTruthy();
+      expect(!result.current.tableQuery.isLoading).toBeTruthy();
     });
 
     const {
-      tableQueryResult: { data },
+      tableQuery: { data },
     } = result.current;
 
     expect(data?.data).toHaveLength(2);
@@ -140,11 +130,11 @@ describe("useTable Hook", () => {
     );
 
     await waitFor(() => {
-      expect(!result.current.tableQueryResult.isLoading).toBeTruthy();
+      expect(!result.current.tableQuery.isLoading).toBeTruthy();
     });
 
     const {
-      tableQueryResult: { data },
+      tableQuery: { data },
     } = result.current;
 
     expect(data?.data).toHaveLength(2);
@@ -169,7 +159,7 @@ describe("useTable Hook", () => {
     );
 
     await waitFor(() => {
-      expect(result.current.tableQueryResult.isSuccess).toBeTruthy();
+      expect(result.current.tableQuery.isSuccess).toBeTruthy();
     });
   });
 
@@ -177,8 +167,6 @@ describe("useTable Hook", () => {
     const { result } = renderHook(
       () =>
         useTable({
-          initialCurrent: 10,
-          initialPageSize: 20,
           pagination: {
             current: 1,
             pageSize: 10,
@@ -207,10 +195,9 @@ describe("useTable Hook", () => {
     const sorters: CrudSort[] = [{ field: "id", order: "asc" }];
 
     await act(async () => {
-      result.current.setSorter(sorters);
+      result.current.setSorters(sorters);
     });
 
-    expect(result.current.sorter).toStrictEqual(sorters);
     expect(result.current.sorters).toStrictEqual(sorters);
   });
 
@@ -228,7 +215,6 @@ describe("useTable Hook", () => {
       result.current.setSorters(sorters);
     });
 
-    expect(result.current.sorter).toStrictEqual(sorters);
     expect(result.current.sorters).toStrictEqual(sorters);
   });
 
@@ -236,7 +222,6 @@ describe("useTable Hook", () => {
     const { result } = renderHook(
       () =>
         useTable({
-          initialFilter: [{ field: "id", operator: "eq", value: 1 }],
           filters: {
             initial: [{ field: "id", operator: "contains", value: "foo" }],
           },
@@ -258,7 +243,6 @@ describe("useTable Hook", () => {
     const { result } = renderHook(
       () =>
         useTable({
-          permanentFilter: [{ field: "id", operator: "eq", value: 1 }],
           filters: {
             permanent: [{ field: "id", operator: "contains", value: "foo" }],
           },
@@ -296,7 +280,6 @@ describe("useTable Hook", () => {
     const { result } = renderHook(
       () =>
         useTable({
-          defaultSetFilterBehavior: "merge",
           filters: {
             initial: initialFilters,
             defaultBehavior: "replace",
@@ -311,7 +294,7 @@ describe("useTable Hook", () => {
     );
 
     await waitFor(() => {
-      expect(result.current.tableQueryResult.isSuccess).toBeTruthy();
+      expect(result.current.tableQuery.isSuccess).toBeTruthy();
     });
 
     expect(result.current.filters).toBeInstanceOf(Array);
@@ -323,7 +306,7 @@ describe("useTable Hook", () => {
     });
 
     await waitFor(() => {
-      expect(result.current.tableQueryResult.isSuccess).toBeTruthy();
+      expect(result.current.tableQuery.isSuccess).toBeTruthy();
     });
 
     expect(result.current.filters).toBeInstanceOf(Array);
@@ -331,11 +314,10 @@ describe("useTable Hook", () => {
     expect(result.current.filters).toHaveLength(1);
   });
 
-  it("`sorters.initial` should be prioritized over initialSorter", async () => {
+  it("should use sorters.initial", async () => {
     const { result } = renderHook(
       () =>
         useTable({
-          initialSorter: [{ field: "id", order: "asc" }],
           sorters: {
             initial: [{ field: "title", order: "desc" }],
           },
@@ -353,11 +335,10 @@ describe("useTable Hook", () => {
     ]);
   });
 
-  it("`sorters.permanent` should be prioritized over permanentSorter", async () => {
+  it("should use sorters.permanent", async () => {
     const { result } = renderHook(
       () =>
         useTable({
-          permanentSorter: [{ field: "id", order: "asc" }],
           sorters: {
             permanent: [{ field: "title", order: "desc" }],
           },
@@ -379,8 +360,6 @@ describe("useTable Hook", () => {
     const { result } = renderHook(
       () =>
         useTable({
-          initialCurrent: 10,
-          initialPageSize: 20,
           pagination: {
             current: 1,
             pageSize: 10,
@@ -409,10 +388,9 @@ describe("useTable Hook", () => {
     const sorters: CrudSort[] = [{ field: "id", order: "asc" }];
 
     await act(async () => {
-      result.current.setSorter(sorters);
+      result.current.setSorters(sorters);
     });
 
-    expect(result.current.sorter).toStrictEqual(sorters);
     expect(result.current.sorters).toStrictEqual(sorters);
   });
 
@@ -430,7 +408,6 @@ describe("useTable Hook", () => {
       result.current.setSorters(sorters);
     });
 
-    expect(result.current.sorter).toStrictEqual(sorters);
     expect(result.current.sorters).toStrictEqual(sorters);
   });
 
@@ -463,13 +440,13 @@ describe("useTable Hook", () => {
     );
 
     await waitFor(() => {
-      expect(result.current.tableQueryResult.isFetching).toBeTruthy();
+      expect(result.current.tableQuery.isFetching).toBeTruthy();
       expect(result.current.overtime.elapsedTime).toBe(900);
       expect(onInterval).toBeCalled();
     });
 
     await waitFor(() => {
-      expect(!result.current.tableQueryResult.isFetching).toBeTruthy();
+      expect(!result.current.tableQuery.isFetching).toBeTruthy();
       expect(result.current.overtime.elapsedTime).toBeUndefined();
     });
   });
@@ -484,7 +461,6 @@ describe("useTable Hook", () => {
       {
         wrapper: TestWrapper({
           refineProvider: {
-            hasDashboard: false,
             mutationMode: "pessimistic",
             syncWithLocation: false,
             warnWhenUnsavedChanges: false,
@@ -515,18 +491,18 @@ describe("useTable Hook", () => {
     );
 
     await waitFor(() => {
-      expect(result.current.tableQueryResult.isFetching).toBeTruthy();
+      expect(result.current.tableQuery.isFetching).toBeTruthy();
       expect(result.current.overtime.elapsedTime).toBe(900);
       expect(onInterval).toBeCalledTimes(9);
     });
 
     await waitFor(() => {
-      expect(!result.current.tableQueryResult.isFetching).toBeTruthy();
+      expect(!result.current.tableQuery.isFetching).toBeTruthy();
       expect(result.current.overtime.elapsedTime).toBeUndefined();
     });
   });
 
-  it("should work with tableQuery and tableQueryResult", async () => {
+  it("should work with tableQuery and tableQuery", async () => {
     const { result } = renderHook(() => useTable(), {
       wrapper: TestWrapper({
         dataProvider: MockJSONServer,
@@ -539,7 +515,7 @@ describe("useTable Hook", () => {
       expect(result.current.tableQuery.isSuccess).toBeTruthy();
     });
 
-    expect(result.current.tableQuery).toEqual(result.current.tableQueryResult);
+    expect(result.current.tableQuery).toEqual(result.current.tableQuery);
   });
 });
 
@@ -556,7 +532,7 @@ describe("useTable Filters", () => {
     });
 
     await waitFor(() => {
-      expect(result.current.tableQueryResult.isSuccess).toBeTruthy();
+      expect(result.current.tableQuery.isSuccess).toBeTruthy();
     });
 
     expect(result.current.filters).toBeInstanceOf(Array);
@@ -575,7 +551,9 @@ describe("useTable Filters", () => {
     const { result } = renderHook(
       () =>
         useTable({
-          permanentFilter,
+          filters: {
+            permanent: permanentFilter,
+          },
         }),
       {
         wrapper,
@@ -583,7 +561,7 @@ describe("useTable Filters", () => {
     );
 
     await waitFor(() => {
-      expect(result.current.tableQueryResult.isSuccess).toBeTruthy();
+      expect(result.current.tableQuery.isSuccess).toBeTruthy();
     });
 
     expect(result.current.filters).toBeInstanceOf(Array);
@@ -613,7 +591,7 @@ describe("useTable Filters", () => {
     );
 
     await waitFor(() => {
-      expect(result.current.tableQueryResult.isSuccess).toBeTruthy();
+      expect(result.current.tableQuery.isSuccess).toBeTruthy();
     });
 
     expect(result.current.filters).toBeInstanceOf(Array);
@@ -651,7 +629,7 @@ describe("useTable Filters", () => {
     );
 
     await waitFor(() => {
-      expect(result.current.tableQueryResult.isSuccess).toBeTruthy();
+      expect(result.current.tableQuery.isSuccess).toBeTruthy();
     });
 
     expect(result.current.filters).toBeInstanceOf(Array);
@@ -698,7 +676,7 @@ describe("useTable Filters", () => {
     );
 
     await waitFor(() => {
-      expect(result.current.tableQueryResult.isSuccess).toBeTruthy();
+      expect(result.current.tableQuery.isSuccess).toBeTruthy();
     });
 
     expect(result.current.filters).toBeInstanceOf(Array);
@@ -736,7 +714,7 @@ describe("useTable Filters", () => {
     );
 
     await waitFor(() => {
-      expect(result.current.tableQueryResult.isSuccess).toBeTruthy();
+      expect(result.current.tableQuery.isSuccess).toBeTruthy();
     });
 
     expect(result.current.filters).toBeInstanceOf(Array);
@@ -748,7 +726,7 @@ describe("useTable Filters", () => {
     });
 
     await waitFor(() => {
-      expect(result.current.tableQueryResult.isSuccess).toBeTruthy();
+      expect(result.current.tableQuery.isSuccess).toBeTruthy();
     });
 
     expect(result.current.filters).toBeInstanceOf(Array);
@@ -797,7 +775,7 @@ describe("useTable Filters", () => {
     );
 
     await waitFor(() => {
-      expect(result.current.tableQueryResult.isSuccess).toBeTruthy();
+      expect(result.current.tableQuery.isSuccess).toBeTruthy();
     });
 
     expect(result.current.filters).toBeInstanceOf(Array);
@@ -811,7 +789,7 @@ describe("useTable Filters", () => {
     });
 
     await waitFor(() => {
-      expect(result.current.tableQueryResult.isSuccess).toBeTruthy();
+      expect(result.current.tableQuery.isSuccess).toBeTruthy();
     });
 
     expect(result.current.filters).toBeInstanceOf(Array);
@@ -864,7 +842,7 @@ describe("useTable Filters", () => {
     );
 
     await waitFor(() => {
-      expect(result.current.tableQueryResult.isSuccess).toBeTruthy();
+      expect(result.current.tableQuery.isSuccess).toBeTruthy();
     });
 
     expect(result.current.filters).toBeInstanceOf(Array);
@@ -879,7 +857,7 @@ describe("useTable Filters", () => {
     });
 
     await waitFor(() => {
-      expect(result.current.tableQueryResult.isSuccess).toBeTruthy();
+      expect(result.current.tableQuery.isSuccess).toBeTruthy();
     });
 
     expect(result.current.filters).toBeInstanceOf(Array);
@@ -925,7 +903,7 @@ describe("useTable Filters", () => {
     );
 
     await waitFor(() => {
-      expect(result.current.tableQueryResult.isSuccess).toBeTruthy();
+      expect(result.current.tableQuery.isSuccess).toBeTruthy();
     });
 
     expect(result.current.filters).toBeInstanceOf(Array);
@@ -937,7 +915,7 @@ describe("useTable Filters", () => {
     });
 
     await waitFor(() => {
-      expect(result.current.tableQueryResult.isSuccess).toBeTruthy();
+      expect(result.current.tableQuery.isSuccess).toBeTruthy();
     });
 
     expect(result.current.filters).toBeInstanceOf(Array);
@@ -982,7 +960,7 @@ describe("useTable Filters", () => {
     );
 
     await waitFor(() => {
-      expect(result.current.tableQueryResult.isSuccess).toBeTruthy();
+      expect(result.current.tableQuery.isSuccess).toBeTruthy();
     });
 
     expect(result.current.filters).toBeInstanceOf(Array);
@@ -994,7 +972,7 @@ describe("useTable Filters", () => {
     });
 
     await waitFor(() => {
-      expect(result.current.tableQueryResult.isSuccess).toBeTruthy();
+      expect(result.current.tableQuery.isSuccess).toBeTruthy();
     });
 
     expect(result.current.filters).toBeInstanceOf(Array);
@@ -1041,7 +1019,7 @@ describe("useTable Filters", () => {
     );
 
     await waitFor(() => {
-      expect(result.current.tableQueryResult.isSuccess).toBeTruthy();
+      expect(result.current.tableQuery.isSuccess).toBeTruthy();
     });
 
     expect(result.current.filters).toBeInstanceOf(Array);
@@ -1056,7 +1034,7 @@ describe("useTable Filters", () => {
     });
 
     await waitFor(() => {
-      expect(result.current.tableQueryResult.isSuccess).toBeTruthy();
+      expect(result.current.tableQuery.isSuccess).toBeTruthy();
     });
 
     expect(result.current.filters).toBeInstanceOf(Array);
@@ -1111,7 +1089,7 @@ describe("useTable Filters", () => {
     );
 
     await waitFor(() => {
-      expect(result.current.tableQueryResult.isSuccess).toBeTruthy();
+      expect(result.current.tableQuery.isSuccess).toBeTruthy();
     });
 
     expect(result.current.filters).toBeInstanceOf(Array);
@@ -1123,7 +1101,7 @@ describe("useTable Filters", () => {
     });
 
     await waitFor(() => {
-      expect(result.current.tableQueryResult.isSuccess).toBeTruthy();
+      expect(result.current.tableQuery.isSuccess).toBeTruthy();
     });
 
     expect(result.current.filters).toBeInstanceOf(Array);
@@ -1173,7 +1151,7 @@ describe("useTable Filters", () => {
     );
 
     await waitFor(() => {
-      expect(result.current.tableQueryResult.isSuccess).toBeTruthy();
+      expect(result.current.tableQuery.isSuccess).toBeTruthy();
     });
 
     expect(result.current.filters).toBeInstanceOf(Array);
@@ -1185,7 +1163,7 @@ describe("useTable Filters", () => {
     });
 
     await waitFor(() => {
-      expect(result.current.tableQueryResult.isSuccess).toBeTruthy();
+      expect(result.current.tableQuery.isSuccess).toBeTruthy();
     });
 
     expect(result.current.filters).toBeInstanceOf(Array);
@@ -1226,7 +1204,7 @@ describe("useTable Filters", () => {
     );
 
     await waitFor(() => {
-      expect(result.current.tableQueryResult.isSuccess).toBeTruthy();
+      expect(result.current.tableQuery.isSuccess).toBeTruthy();
     });
 
     expect(result.current.filters).toBeInstanceOf(Array);
@@ -1238,7 +1216,7 @@ describe("useTable Filters", () => {
     });
 
     await waitFor(() => {
-      expect(result.current.tableQueryResult.isSuccess).toBeTruthy();
+      expect(result.current.tableQuery.isSuccess).toBeTruthy();
     });
 
     expect(result.current.filters).toBeInstanceOf(Array);
@@ -1276,7 +1254,7 @@ describe("useTable Filters", () => {
     );
 
     await waitFor(() => {
-      expect(result.current.tableQueryResult.isSuccess).toBeTruthy();
+      expect(result.current.tableQuery.isSuccess).toBeTruthy();
     });
 
     expect(result.current.filters).toBeInstanceOf(Array);
@@ -1288,7 +1266,7 @@ describe("useTable Filters", () => {
     });
 
     await waitFor(() => {
-      expect(result.current.tableQueryResult.isSuccess).toBeTruthy();
+      expect(result.current.tableQuery.isSuccess).toBeTruthy();
     });
 
     expect(result.current.filters).toBeInstanceOf(Array);
@@ -1326,7 +1304,7 @@ describe("useTable Filters", () => {
     );
 
     await waitFor(() => {
-      expect(result.current.tableQueryResult.isSuccess).toBeTruthy();
+      expect(result.current.tableQuery.isSuccess).toBeTruthy();
     });
 
     expect(result.current.filters).toBeInstanceOf(Array);
@@ -1342,7 +1320,7 @@ describe("useTable Filters", () => {
     });
 
     await waitFor(() => {
-      expect(result.current.tableQueryResult.isSuccess).toBeTruthy();
+      expect(result.current.tableQuery.isSuccess).toBeTruthy();
     });
 
     expect(setterFunction).toBeCalledTimes(1);
@@ -1394,7 +1372,7 @@ describe("useTable Filters", () => {
     );
 
     await waitFor(() => {
-      expect(result.current.tableQueryResult.isSuccess).toBeTruthy();
+      expect(result.current.tableQuery.isSuccess).toBeTruthy();
     });
 
     expect(result.current.filters).toBeInstanceOf(Array);
@@ -1408,7 +1386,7 @@ describe("useTable Filters", () => {
     });
 
     await waitFor(() => {
-      expect(result.current.tableQueryResult.isSuccess).toBeTruthy();
+      expect(result.current.tableQuery.isSuccess).toBeTruthy();
     });
 
     expect(result.current.filters).toBeInstanceOf(Array);
@@ -1510,147 +1488,5 @@ describe("useTable Filters", () => {
         }),
       }),
     );
-  });
-
-  // NOTE : legacy Will be removed in v5
-  it.each(["new", "legacy"] as const)(
-    "should createLinkForSyncWithLocation with %s router provider",
-    async (testCase) => {
-      const goMock = jest.fn(() => "go mock");
-      const useLocationMock = jest.fn(() => ({
-        search: "",
-        pathname: "/posts",
-      }));
-
-      jest.spyOn(useRouterType, "useRouterType").mockReturnValue(testCase);
-
-      const mockRouterProvider =
-        testCase === "new"
-          ? {
-              routerProvider: {
-                ...routerProvider,
-                go: () => goMock,
-              },
-            }
-          : {
-              legacyRouterProvider: {
-                ...mockLegacyRouterProvider(),
-                useLocation: useLocationMock,
-              },
-            };
-
-      const { result } = renderHook(
-        () =>
-          useTable({
-            syncWithLocation: true,
-          }),
-        {
-          wrapper: TestWrapper({
-            resources: [{ name: "posts" }],
-            dataProvider: MockJSONServer,
-            ...mockRouterProvider,
-          }),
-        },
-      );
-
-      const link = result.current.createLinkForSyncWithLocation({
-        filters: [],
-        sorters: [],
-        pagination: {
-          current: 1,
-          pageSize: 10,
-        },
-      });
-
-      if (testCase === "new") {
-        expect(link).toEqual("go mock");
-      } else {
-        expect(link).toEqual("/posts?pageSize=10&current=1");
-      }
-    },
-  );
-});
-
-// NOTE : Will be removed in v5
-describe("legacy Router Provider", () => {
-  it("should set current, pageSize, sorters, filters to initial values after search", async () => {
-    const mockInitialValues = {
-      current: 2,
-      pageSize: 20,
-      sorters: [],
-      filters: [],
-    };
-
-    const defaultValues: {
-      pagination: Pagination;
-      sorters: {
-        initial: CrudSort[];
-      };
-      filters: {
-        initial: CrudFilter[];
-      };
-    } = {
-      pagination: {
-        current: 1,
-        pageSize: 10,
-      },
-      sorters: {
-        initial: [
-          {
-            field: "id",
-            order: "desc",
-          },
-        ],
-      },
-      filters: {
-        initial: [
-          {
-            field: "name",
-            operator: "contains",
-            value: "test",
-          },
-        ],
-      },
-    };
-
-    const useLocationMock = jest.fn(() => ({
-      search: `?current=${mockInitialValues.current}&pageSize=${mockInitialValues.pageSize}&sorters=""&filters=""`,
-      pathname: "/posts",
-    }));
-
-    const { result, rerender } = renderHook(
-      () =>
-        useTable({
-          syncWithLocation: true,
-          ...defaultValues,
-        }),
-      {
-        wrapper: TestWrapper({
-          resources: [{ name: "posts" }],
-          dataProvider: MockJSONServer,
-          legacyRouterProvider: {
-            ...mockLegacyRouterProvider(),
-            useLocation: useLocationMock,
-          },
-        }),
-      },
-    );
-
-    // should be mockInitialValues because of syncWithLocation
-    expect(result.current.current).toEqual(mockInitialValues.current);
-    expect(result.current.pageSize).toEqual(mockInitialValues.pageSize);
-    expect(result.current.sorters).toEqual(mockInitialValues.sorters);
-    expect(result.current.filters).toEqual(mockInitialValues.filters);
-    // send empty search
-    useLocationMock.mockImplementationOnce(() => ({
-      search: "",
-      pathname: "/posts",
-    }));
-    rerender();
-    // should be defaultValues because of empty search
-    expect(result.current.current).toEqual(defaultValues.pagination.current);
-    expect(result.current.pageSize).toEqual(defaultValues.pagination.pageSize);
-    expect(result.current.sorters).toEqual(defaultValues.sorters.initial);
-    expect(result.current.filters).toEqual(defaultValues.filters.initial);
   });
 });

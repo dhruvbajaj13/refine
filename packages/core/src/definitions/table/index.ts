@@ -3,8 +3,6 @@ import unionWith from "lodash/unionWith";
 import qs, { type IStringifyOptions } from "qs";
 import warnOnce from "warn-once";
 
-import { pickNotDeprecated } from "@definitions/helpers";
-
 import type {
   CrudFilter,
   CrudOperators,
@@ -13,14 +11,14 @@ import type {
 } from "../../contexts/data/types";
 
 export const parseTableParams = (url: string) => {
-  const { current, pageSize, sorter, sorters, filters } = qs.parse(
+  const { current, pageSize, sorters, filters } = qs.parse(
     url.substring(1), // remove first ? character
   );
 
   return {
     parsedCurrent: current && Number(current),
     parsedPageSize: pageSize && Number(pageSize),
-    parsedSorter: (pickNotDeprecated(sorters, sorter) as CrudSort[]) ?? [],
+    parsedSorter: (sorters as CrudSort[]) ?? [],
     parsedFilters: (filters as CrudFilter[]) ?? [],
   };
 };
@@ -44,13 +42,13 @@ export const stringifyTableParams = (params: {
     arrayFormat: "indices",
     encode: false,
   };
-  const { pagination, sorter, sorters, filters, ...rest } = params;
+  const { pagination, sorters, filters, ...rest } = params;
 
   const queryString = qs.stringify(
     {
       ...rest,
       ...(pagination ? pagination : {}),
-      sorters: pickNotDeprecated(sorters, sorter),
+      sorters,
       filters,
     },
     options,
